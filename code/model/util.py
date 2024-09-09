@@ -59,7 +59,6 @@ def ffnn(inputs, num_hidden_layers, hidden_size, output_size, dropout, output_we
     return outputs
 
 
-
 def variable_summaries(var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
     name = "_" + var.name.split("/")[-1].split(":")[0]

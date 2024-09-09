@@ -168,7 +168,7 @@ def train():
     #print(next_element)
 
     if args.ablations:
-        from model.model_ablations import Model
+        from model.model_ablations import Model # 消融实验的模型
     else:
         from model.model import Model
     model = Model(args, next_element)
@@ -226,11 +226,12 @@ def train():
             summary = sess.run(model.merged_summary_op)
             tf_writers["train"].add_summary(summary, args.eval_cnt)
 
+            # epoch验证
             wall_start = time.time()
             comparison_ed_score = comparison_el_score = -0.1
             if ed_names:
                 print("Evaluating ED datasets")
-                ed_scores = compute_ed_el_scores(model, ed_handles, ed_names, ed_iterators, el_mode=False)
+                ed_scores = compute_ed_el_scores(model, ed_handles, ed_names, ed_iterators, el_mode=False)  # 这里真正调用model.run
                 comparison_ed_score = np.mean(np.array(ed_scores)[args.ed_val_datasets])
             if el_names:
                 print("Evaluating EL datasets")
@@ -268,6 +269,7 @@ def train():
                 termination_el_score = comparison_el_score
                 nepoch_no_imprv = 0
             else:
+                # 当nepoch_no_imprv个epoch没有改进，则终止训练
                 nepoch_no_imprv += 1
                 if nepoch_no_imprv >= args.nepoch_no_imprv:
                     print("- early stopping {} epochs without "
@@ -491,10 +493,20 @@ def log_args(filepath):
 
 
 def terminate():
+    """
+    关闭tee对象，并将参数对象pickle化后保存到指定文件夹。
+    
+    该函数在程序终止时被调用，用于清理资源和保存训练参数。
+    它首先关闭了tee对象，以释放相关的文件资源。
+    然后，它将命令行参数对象(args)进行pickle化保存。
+    这一步骤确保了在程序意外终止的情况下能够保留最后的训练参数状态。
+    """
+    # 关闭tee对象，释放相关资源
     tee.close()
+    
+    # 将参数对象pickle化并保存到指定的文件夹
     with open(args.output_folder+"train_args.pickle", 'wb') as handle:
         pickle.dump(args, handle)
-
 
 if __name__ == "__main__":
     args = _parse_args()

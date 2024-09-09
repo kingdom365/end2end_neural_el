@@ -605,25 +605,51 @@ class TFRecordsGenerator(object):
         return sequence_example
 
 
-    def process(self, filepath):
-        print("processing file: ", filepath)
-        #the name of the dataset. just extract the last part of path
-        filename = os.path.basename(os.path.normpath(filepath))[:-4]  # omit the '.txt'
-        output_folder = config.base_folder+"data/tfrecords/"+args.experiment_name+"/"
-        output_folder += "gmonly/" if self.is_gmonly_mode() else "allspans/"
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-        writer = tf.python_io.TFRecordWriter(output_folder+filename)
-        records_cnt = 0
-        for sample in self._generator.process(filepath):
-            #print(sample)
-            sequence_example = self._to_sequence_example(sample)
-            # write it to file
-            if sequence_example is not None:
-                writer.write(sequence_example.SerializeToString())
-                records_cnt += 1
-        writer.close()
-        print("records_cnt = ", records_cnt)
+def process(self, filepath):
+    """
+    处理指定文件路径的数据并将其转换为TFRecord格式。
+
+    参数:
+    - filepath (str): 需要处理的文件路径。
+
+    返回值:
+    无
+    """
+    print("processing file: ", filepath)
+    
+    # 提取数据集名称，仅使用路径的最后一部分，并去除'.txt'扩展名
+    filename = os.path.basename(os.path.normpath(filepath))[:-4]
+    
+    # 构建输出文件夹路径，基于配置和实验名称
+    output_folder = config.base_folder + "data/tfrecords/" + args.experiment_name + "/"
+    
+    # 根据处理模式确定子文件夹
+    output_folder += "gmonly/" if self.is_gmonly_mode() else "allspans/"
+    
+    # 如果输出文件夹不存在，则创建它
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    # 创建TFRecordWriter对象以写入数据
+    writer = tf.python_io.TFRecordWriter(output_folder + filename)
+    
+    # 初始化记录计数器
+    records_cnt = 0
+    
+    # 对每个样本进行处理并写入TFRecord文件
+    for sample in self._generator.process(filepath):
+        sequence_example = self._to_sequence_example(sample)
+        
+        # 将序列示例写入文件
+        if sequence_example is not None:
+            writer.write(sequence_example.SerializeToString())
+            records_cnt += 1
+    
+    # 关闭写入器
+    writer.close()
+    
+    # 打印记录总数
+    print("records_cnt = ", records_cnt)
 
 
 def create_tfrecords():

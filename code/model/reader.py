@@ -4,33 +4,45 @@ import model.config as config
 import pickle
 
 def parse_sequence_example(serialized):
-    sequence_features={
-            "words": tf.FixedLenSequenceFeature([], dtype=tf.int64),   # in order to have a vector. if i put [1] it will probably
-            # be a matrix with just one column
-            "chars": tf.VarLenFeature(tf.int64),
-            "chars_len": tf.FixedLenSequenceFeature([], dtype=tf.int64),
-            "begin_span": tf.FixedLenSequenceFeature([], dtype=tf.int64),
-            "end_span": tf.FixedLenSequenceFeature([], dtype=tf.int64),
-            "cand_entities": tf.VarLenFeature(tf.int64),
-            "cand_entities_scores": tf.VarLenFeature(tf.float32),
-            "cand_entities_labels": tf.VarLenFeature(tf.int64),
-            "cand_entities_len": tf.FixedLenSequenceFeature([], dtype=tf.int64),
-            "ground_truth": tf.FixedLenSequenceFeature([], dtype=tf.int64)
+    """
+    解析序列类型的Example。
+
+    参数:
+    serialized: 一个Tensor，包含一个序列化的Example。
+
+    返回:
+    一个元组，包含Context和Sequence特征。
+    """
+    # 定义序列特征。这些特征会在序列Example中被解析。
+    sequence_features = {
+        "words": tf.FixedLenSequenceFeature([], dtype=tf.int64),  # 单词序列，存储为int64类型的向量
+        "chars": tf.VarLenFeature(tf.int64),  # 字序列，存储为int64类型的稀疏矩阵
+        "chars_len": tf.FixedLenSequenceFeature([], dtype=tf.int64),  # 字序列长度
+        "begin_span": tf.FixedLenSequenceFeature([], dtype=tf.int64),  # 开始跨度序列
+        "end_span": tf.FixedLenSequenceFeature([], dtype=tf.int64),  # 结束跨度序列
+        "cand_entities": tf.VarLenFeature(tf.int64),  # 候选实体序列
+        "cand_entities_scores": tf.VarLenFeature(tf.float32),  # 候选实体分数序列
+        "cand_entities_labels": tf.VarLenFeature(tf.int64),  # 候选实体标签序列
+        "cand_entities_len": tf.FixedLenSequenceFeature([], dtype=tf.int64),  # 候选实体序列长度
+        "ground_truth": tf.FixedLenSequenceFeature([], dtype=tf.int64)  # 真实标签序列
     }
+    # 条件语句中添加额外的特征。这里假设条件总是为真，因此总是添加这些特征。
     if True:
         sequence_features["begin_gm"] = tf.FixedLenSequenceFeature([], dtype=tf.int64)
         sequence_features["end_gm"] = tf.FixedLenSequenceFeature([], dtype=tf.int64)
 
+    # 解析序列Example。根据定义的context和sequence特征解析serialized Example。
     context, sequence = tf.parse_single_sequence_example(
         serialized,
         context_features={
-            "chunk_id": tf.FixedLenFeature([], dtype=tf.string),
-            "words_len": tf.FixedLenFeature([], dtype=tf.int64),
-            "spans_len": tf.FixedLenFeature([], dtype=tf.int64),
-            "ground_truth_len": tf.FixedLenFeature([], dtype=tf.int64)
+            "chunk_id": tf.FixedLenFeature([], dtype=tf.string),  # chunk的ID
+            "words_len": tf.FixedLenFeature([], dtype=tf.int64),  # 单词序列长度
+            "spans_len": tf.FixedLenFeature([], dtype=tf.int64),  # 跨度序列长度
+            "ground_truth_len": tf.FixedLenFeature([], dtype=tf.int64)  # 真实标签序列长度
         },
         sequence_features=sequence_features)
 
+    # 返回解析后的特征。将sparse tensor转换为dense，并组合成元组返回。
     return context["chunk_id"], sequence["words"], context["words_len"],\
            tf.sparse_tensor_to_dense(sequence["chars"]), sequence["chars_len"],\
            sequence["begin_span"], sequence["end_span"], context["spans_len"],\
