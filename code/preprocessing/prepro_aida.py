@@ -2,6 +2,7 @@ import argparse
 import os
 import preprocessing.util as util
 
+# 加载并处理aida数据集
 def process_aida(in_filepath, out_filepath):
 
     # _, wiki_id_name_map = util.load_wiki_name_id_map(lowercase=False)

@@ -90,6 +90,9 @@ def load_redirections(lowercase=None):
     print("redirections_errors: ", redirections_errors)
     return redirections
 
+'''
+    加载消歧字典
+'''
 def load_disambiguations():
     wall_start = time.time()
     disambiguations_ids = set()
@@ -132,6 +135,7 @@ def load_wiki_name_id_map(lowercase=False, filepath=None):
     duplicate_ids = 0      # with the same id
     if filepath is None:
         filepath = config.base_folder + "data/basic_data/wiki_name_id_map.txt"
+    # 加载消歧
     disambiguations_ids = load_disambiguations()
     with open(filepath) as fin:
         for line in fin:
