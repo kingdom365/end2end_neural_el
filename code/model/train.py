@@ -162,7 +162,7 @@ def train():
     el_datasets, el_names = create_el_ed_pipelines(gmonly_flag=False, filenames=args.el_datasets, args=args)
 
     input_handle_ph = tf.placeholder(tf.string, shape=[], name="input_handle_ph")
-    iterator = tf.contrib.data.Iterator.from_string_handle(
+    iterator = tf.data.Iterator.from_string_handle(
         input_handle_ph, training_dataset.output_types, training_dataset.output_shapes)
     next_element = iterator.get_next()
     #print(next_element)

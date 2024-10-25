@@ -280,6 +280,7 @@ if not paths.filep(rewtr_t7filename) then
   --entities_file_path = '../../data/entities/extension_entities/extension_entities.txt'
   --wikiid2nnid_folder_path = '../../data/entities/extension_entities/wikiid2nnid/'
 
+  -- 读取entities_universe.txt，生成一个hash表
   it, _ = io.open(entities_file_path)
   local line = it:read()
   while line do
@@ -341,7 +342,7 @@ if not paths.filep(rewtr_t7filename) then
   rewtr = tds.Hash()
   rewtr.reltd_ents_wikiid_to_rltdid = reltd_ents_wikiid_to_rltdid
   rewtr.reltd_ents_rltdid_to_wikiid = sorted_rltd_all_ent_wikiids
-  rewtr.num_rltd_ents = #sorted_rltd_all_ent_wikiids
+  rewtr.num_rltd_ents = #sorted_rltd_all_ent_wikiids  -- sorted_rltd_all_ent_wikiids中最长连续元素的索引的最大值
   
   -- end2end_neural_el       print these to file as well
   print('Now printing to file the wikiid to torch ids mappings...')
